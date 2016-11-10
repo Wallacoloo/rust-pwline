@@ -23,6 +23,9 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + From<X> + NumCast> PwLine<
             points: BTreeMap::new(),
         }
     }
+    pub fn add_pt(&mut self, x: X, y: Y) {
+        self.points.insert(x, y);
+    }
     /// evaluate the function at one point, returning None if the query point
     /// is outside the domain (defined inclusively) of the function.
     pub fn get(&self, at: X) -> Option<Y> {
