@@ -17,7 +17,7 @@ pub struct PwLine<X: Ord, Y> {
     points: BTreeMap<X, Y>,
 }
 
-impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + From<X> + NumCast> PwLine<X, Y> {
+impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
     pub fn new() -> Self {
         PwLine{
             points: BTreeMap::new(),
@@ -56,7 +56,7 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + From<X> + NumCast> PwLine<
 }
 
 
-impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + From<X> + NumCast> PwLine<X, Y> {
+impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> PwLine<X, Y> {
     /// Evaluate the function at `at`, `at+1`, ..., and place results into `into`, unwrapped.
     pub fn get_consecutive(&self, at: X, into: &mut [Y]) {
         // TODO: this can be implemented in O(n + log k), where k is the number of segments and n
