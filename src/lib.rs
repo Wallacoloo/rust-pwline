@@ -28,6 +28,7 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
     }
     /// evaluate the function at one point, returning None if the query point
     /// is outside the domain (defined inclusively) of the function.
+    /// Time complexity: O(log n) with n being the number of segments in the line.
     pub fn get(&self, at: X) -> Option<Y> {
         // locate the point on either side of `at`.
         // TODO: can we do this with just one call to range?
