@@ -59,6 +59,8 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + From<X> + NumCast> PwLine<
 impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + From<X> + NumCast> PwLine<X, Y> {
     /// Evaluate the function at `at`, `at+1`, ..., and place results into `into`, unwrapped.
     pub fn get_consecutive(&self, at: X, into: &mut [Y]) {
+        // TODO: this can be implemented in O(n + log k), where k is the number of segments and n
+        // is the number of points to be queried.
         let mut at = at;
         for mut output in into.iter_mut() {
             *output = self.get(at.clone()).unwrap();
