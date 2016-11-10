@@ -3,8 +3,9 @@
 extern crate num;
 
 use std::collections::{Bound, BTreeMap};
+use std::ops::AddAssign;
 
-use num::{Num, NumCast};
+use num::{Num, NumCast, One};
 
 /// Encode a piecewise-linear function, y(x)
 /// X is the type of the domain variable (x),
@@ -47,6 +48,18 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + From<X> + NumCast> PwLine<
                     }
                 }
             }
+        }
+    }
+}
+
+
+impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + From<X> + NumCast> PwLine<X, Y> {
+    /// Evaluate the function at `at`, `at+1`, ..., and place results into `into`, unwrapped.
+    pub fn get_consecutive(&self, at: X, into: &mut [Y]) {
+        let mut at = at;
+        for mut output in into.iter_mut() {
+            *output = self.get(at.clone()).unwrap();
+            at += One::one();
         }
     }
 }
