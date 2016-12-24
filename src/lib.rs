@@ -10,6 +10,7 @@ use num::{Num, NumCast, One};
 /// Encode a piecewise-linear function, y(x)
 /// X is the type of the domain variable (x),
 /// Y is the type of the range variable (y).
+#[derive(Clone)]
 pub struct PwLine<X: Ord, Y> {
     // a common operation will be to evaluate the PWL at N adjacent points.
     // a tree structure will allow for rapid iteration of adjacent pieces,
