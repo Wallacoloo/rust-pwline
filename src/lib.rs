@@ -5,5 +5,5 @@ extern crate num;
 mod pwline;
 mod tests;
 
-pub use pwline::PwLine;
+pub use pwline::{PwLine, PwLineIter};
 
