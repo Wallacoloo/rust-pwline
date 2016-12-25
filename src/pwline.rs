@@ -16,6 +16,12 @@ pub struct PwLine<X: Ord, Y> {
     points: BTreeMap<X, Y>,
 }
 
+pub struct PwIter<'a, X: 'a + Ord + Num + Clone + NumCast + AddAssign + One, Y: 'a + Num + Clone + NumCast> {
+    pw: &'a PwLine<X, Y>,
+    /// The X value of the next point to query.
+    x: X,
+}
+
 impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
     pub fn new() -> Self {
         PwLine{
@@ -59,15 +65,23 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
 }
 
 
- /*impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> PwLine<X, Y> {
+impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> PwLine<X, Y> {
     /// Evaluate the function at `at`, `at+1`, ..., and place results into `into`, unwrapped.
-    pub fn get_consecutive(&self, at: X, into: &mut [Y]) {
+    pub fn get_consec(&self, at: X) -> PwIter<X, Y> {
         // TODO: this can be implemented in O(n + log k), where k is the number of segments and n
         // is the number of points to be queried.
-        let mut at = at;
-        for mut output in into.iter_mut() {
-            *output = self.get(at.clone()).unwrap();
-            at += One::one();
+        PwIter {
+            pw: &self,
+            x: at,
         }
     }
-}*/
+}
+
+impl<'a, X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> Iterator for PwIter<'a, X, Y> {
+    type Item=Y;
+    fn next(&mut self) -> Option<Y> {
+        let res = self.pw.get(self.x.clone());
+        self.x += One::one();
+        res
+    }
+}

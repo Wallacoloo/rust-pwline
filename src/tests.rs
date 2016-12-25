@@ -46,3 +46,15 @@ fn test_two_seg() {
     assert_eq!(x.get(35u32).unwrap(), 3.25f32);
     assert_eq!(x.get(40u32).unwrap(), 3.0f32);
 }
+
+#[test]
+fn test_get_consec() {
+    let mut x = PwLine::new();
+    x.add_pt(0u32, 2.0f32);
+    x.add_pt(2u32, 4.0f32);
+    x.add_pt(4u32, 3.0f32);
+    x.add_pt(6u32, 0.0f32);
+    let got : Vec<f32> = x.get_consec(1u32).collect();
+    assert_eq!(got, vec![/* 1 */ 3.0f32, /* 2 */ 4.0f32, /* 3 */ 3.5f32,
+        /* 4 */ 3.0f32, /* 5 */ 1.5f32, /* 6 */ 0.0f32]);
+}
