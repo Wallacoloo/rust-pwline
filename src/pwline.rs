@@ -16,7 +16,7 @@ pub struct PwLine<X: Ord, Y> {
     points: BTreeMap<X, Y>,
 }
 
-pub struct PwIter<'a, X: 'a + Ord + Num + Clone + NumCast + AddAssign + One, Y: 'a + Num + Clone + NumCast> {
+pub struct PwLineIter<'a, X: 'a + Ord + Num + Clone + NumCast + AddAssign + One, Y: 'a + Num + Clone + NumCast> {
     pw: &'a PwLine<X, Y>,
     /// The X value of the next point to query.
     x: X,
@@ -67,17 +67,17 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
 
 impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> PwLine<X, Y> {
     /// Evaluate the function at `at`, `at+1`, ..., and place results into `into`, unwrapped.
-    pub fn get_consec(&self, at: X) -> PwIter<X, Y> {
+    pub fn get_consec(&self, at: X) -> PwLineIter<X, Y> {
         // TODO: this can be implemented in O(n + log k), where k is the number of segments and n
         // is the number of points to be queried.
-        PwIter {
+        PwLineIter {
             pw: &self,
             x: at,
         }
     }
 }
 
-impl<'a, X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> Iterator for PwIter<'a, X, Y> {
+impl<'a, X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> Iterator for PwLineIter<'a, X, Y> {
     type Item=Y;
     fn next(&mut self) -> Option<Y> {
         let res = self.pw.get(self.x.clone());
