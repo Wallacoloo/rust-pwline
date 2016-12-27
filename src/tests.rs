@@ -2,19 +2,13 @@ use super::pwline::PwLine;
 
 #[test]
 fn test_const() {
-    let mut x = PwLine::new();
-    x.add_pt(0u32, 2.0f32);
-    x.add_pt(20u32, 2.0f32);
-    // test boundaries (range should be inclusive)
-    assert_eq!(x.get(0u32), 2.0f32);
-    assert_eq!(x.get(20u32), 2.0f32);
+    let x = PwLine::from_const(2.0f32);
     // test interior
-    for i in 1..20 {
+    for i in 0u32..21u32 {
         assert_eq!(x.get(i), 2.0f32);
     }
 }
 
-/*
 #[test]
 fn test_oob() {
     let mut x = PwLine::new();
@@ -22,14 +16,21 @@ fn test_oob() {
     x.add_pt(20i32, -2.0f32);
 
     // Immediately OOB
-    assert_eq!(x.get(-11i32), None);
-    assert_eq!(x.get(21i32), None);
+    assert_eq!(x.get(-11i32), 2.0f32);
+    assert_eq!(x.get(21i32), -2.0f32);
 
     // Farther OOB
-    assert_eq!(x.get(-999i32), None);
-    assert_eq!(x.get(999i32), None);
+    assert_eq!(x.get(-999i32), 2.0f32);
+    assert_eq!(x.get(999i32), -2.0f32);
 }
-*/
+
+#[test]
+fn test_empty() {
+    let x = PwLine::<u32, f32>::new();
+    // Empty functions default to Zero
+    assert_eq!(x.get(11u32), 0.0f32);
+}
+
 
 #[test]
 fn test_two_seg() {

@@ -32,6 +32,13 @@ impl<X: Ord, Y> PwLine<X, Y> {
         self.points.insert(x, y);
     }
 }
+impl<X: Ord + Default, Y> PwLine<X, Y> {
+    pub fn from_const(y: Y) -> Self {
+        let mut me = PwLine::new();
+        me.add_pt(X::default(), y);
+        me
+    }
+}
 
 impl<X, Y> PwLine<X, Y>
     where X: Ord + Num + Clone + NumCast,
