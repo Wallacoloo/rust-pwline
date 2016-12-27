@@ -22,7 +22,7 @@ pub struct PwLineIter<'a, X: 'a + Ord + Num + Clone + NumCast + AddAssign + One,
     x: X,
 }
 
-impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
+impl<X: Ord, Y> PwLine<X, Y> {
     pub fn new() -> Self {
         PwLine{
             points: BTreeMap::new(),
@@ -31,33 +31,37 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
     pub fn add_pt(&mut self, x: X, y: Y) {
         self.points.insert(x, y);
     }
-    /// evaluate the function at one point, returning None if the query point
-    /// is outside the domain (defined inclusively) of the function.
-    /// Time complexity: O(log n) with n being the number of segments in the line.
-    pub fn get(&self, at: X) -> Option<Y> {
-        // locate the point on either side of `at`.
-        // TODO: can we do this with just one call to range?
-        let left_range = self.points.range(Bound::Unbounded, Bound::Included(&at));
+}
+
+impl<X, Y> PwLine<X, Y>
+    where X: Ord + Num + Clone + NumCast,
+          Y: Num + Clone + NumCast + Default {
+    /// Evaluates the function at one point. If the query point is OOB,
+    /// return the nearest in-bounds point. If there is no such point, return the default
+    /// output value.
+    pub fn get(&self, at: X) -> Y {
+        let mut left_range = self.points.range(Bound::Unbounded, Bound::Included(&at));
         let mut right_range = self.points.range(Bound::Included(&at), Bound::Unbounded);
-        match left_range.rev().next() {
-            None => None,
-            Some((left_x, left_y)) => {
-                match right_range.next() {
-                    None => None,
-                    Some((right_x, right_y)) => {
-                        // We've defined a line from (left_x, left_y) to (right_x, right_y): now
-                        // evaluate it at `x=at`. Note: need to consider the case where left_x ==
-                        // right_x.
-                        if &at == left_x {
-                            // serves to avoid the division-by-zero case
-                            Some(left_y.clone())
-                        } else {
-                            let dx : Y = num::cast(right_x.clone()-left_x.clone()).unwrap();
-                            let dy = right_y.clone()-left_y.clone();
-                            let x_off : Y = num::cast(at.clone()-left_x.clone()).unwrap();
-                            Some(left_y.clone() + x_off*dy/dx)
-                        }
-                    }
+        let left_point = left_range.next_back();
+        let right_point = right_range.next();
+
+        match (left_point, right_point) {
+            // The line has NO points
+            (None, None) => Y::default(),
+            // Queried a point to the right of the function
+            (Some((_left_x, left_y)), None) => left_y.clone(),
+            // Queried a point to the left of the function
+            (None, Some((_right_x, right_y))) => right_y.clone(),
+            // Point is on a segment
+            (Some((left_x, left_y)), Some((right_x, right_y))) => {
+                if left_x == right_x {
+                    // This is possible because the ranges are inclusive.
+                    left_y.clone()
+                } else {
+                    let dx : Y = num::cast(right_x.clone()-left_x.clone()).unwrap();
+                    let dy = right_y.clone()-left_y.clone();
+                    let x_off : Y = num::cast(at.clone()-left_x.clone()).unwrap();
+                    left_y.clone() + x_off*dy/dx
                 }
             }
         }
@@ -65,7 +69,11 @@ impl<X: Ord + Num + Clone + NumCast, Y: Num + Clone + NumCast> PwLine<X, Y> {
 }
 
 
-impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> PwLine<X, Y> {
+
+
+impl<X, Y> PwLine<X, Y>
+    where X: Ord + Num + Clone + NumCast + AddAssign + One,
+          Y: Num + Clone + NumCast + Default {
     /// Evaluate the function at `at`, `at+1`, ..., and place results into `into`, unwrapped.
     pub fn get_consec(&self, at: X) -> PwLineIter<X, Y> {
         // TODO: this can be implemented in O(n + log k), where k is the number of segments and n
@@ -77,11 +85,13 @@ impl<X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast>
     }
 }
 
-impl<'a, X: Ord + Num + Clone + NumCast + AddAssign + One, Y: Num + Clone + NumCast> Iterator for PwLineIter<'a, X, Y> {
+impl<'a, X, Y> Iterator for PwLineIter<'a, X, Y>
+    where X: Ord + Num + Clone + NumCast + AddAssign + One,
+          Y: Num + Clone + NumCast + Default {
     type Item=Y;
     fn next(&mut self) -> Option<Y> {
         let res = self.pw.get(self.x.clone());
         self.x += One::one();
-        res
+        Some(res)
     }
 }
