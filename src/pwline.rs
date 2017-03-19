@@ -1,5 +1,5 @@
 
-use std::collections::{Bound, BTreeMap};
+use std::collections::BTreeMap;
 use std::ops::AddAssign;
 
 use num::{Num, NumCast, One};
@@ -47,8 +47,8 @@ impl<X, Y> PwLine<X, Y>
     /// return the nearest in-bounds point. If there is no such point, return the default
     /// output value.
     pub fn get(&self, at: X) -> Y {
-        let mut left_range = self.points.range(Bound::Unbounded, Bound::Included(&at));
-        let mut right_range = self.points.range(Bound::Included(&at), Bound::Unbounded);
+        let mut left_range = self.points.range(..at.clone());
+        let mut right_range = self.points.range(at.clone()..);
         let left_point = left_range.next_back();
         let right_point = right_range.next();
 
